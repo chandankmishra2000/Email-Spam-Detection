@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Email Spam Detection Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s active;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.99);
+        }
+
+        #result-container {
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-box {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .result-icon {
+            font-size: 2.5rem;
+        }
+
+        .result-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .result-content p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .spam-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .safe-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-shield-halved"></i> SpamDetector AI</h1>
+            <p>Powered by Support Vector Machine (SVM) & TF-IDF Text Analytics</p>
+        </header>
+
+        <div class="input-group">
+            <label for="emailInput">Paste or type your email content below:</label>
+            <textarea id="emailInput" placeholder="e.g., Subject: Unbelievable new homes made easy, get software CDs from here..."></textarea>
+        </div>
+
+        <button id="analyzeBtn" onclick="analyzeEmail()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Email
+        </button>
+
+        <div id="result-container">
+            <div class="result-box" id="resultBoxWrapper">
+                <div class="result-icon" id="resultIcon"></div>
+                <div class="result-content">
+                    <h3 id="resultTitle"></h3>
+                    <p id="resultDesc"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Spam Classification Web App • Built with Flask & Scikit-Learn
+    </footer>
+
+    <script>
+        async function analyzeEmail() {
+            const emailText = document.getElementById('emailInput').value;
+            const btn = document.getElementById('analyzeBtn');
+            const resultContainer = document.getElementById('result-container');
+            const resultBoxWrapper = document.getElementById('resultBoxWrapper');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDesc = document.getElementById('resultDesc');
+
+            if (!emailText.trim()) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email_text: emailText })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultContainer.style.display = 'block';
+                    
+                    if (data.is_spam === 1) {
+                        resultBoxWrapper.className = 'result-box spam-badge';
+                        resultIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+                        resultTitle.textContent = 'Classification: SPAM DETECTED';
+                        resultDesc.textContent = 'This message contains linguistic features matching known spam distributions.';
+                    } else {
+                        resultBoxWrapper.className = 'result-box safe-badge';
+                        resultIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>';
+                        resultTitle.textContent = 'Classification: LEGITIMATE (NOT SPAM)';
+                        resultDesc.textContent = 'This message appears safe and clean of typical unsolicited spam traits.';
+                    }
+                } else {
+                    alert(data.error || 'An error occurred.');
+                }
+            } catch (err) {
+                alert('Failed to connect to the backend server.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Email';
+            }
+        }
+    </script>
+</body>
+</html>
